@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 import tn.droidcon.testprovider.adapter.CustomAdapter;
 import tn.droidcon.testprovider.database.TestContentProvider;
+import tn.droidcon.testprovider.database.tables.ListsTable;
 import tn.droidcon.testprovider.database.tables.RecordsTable;
 import tn.droidcon.testprovider.ui.AddDialog;
 import tn.droidcon.testprovider.wrapper.ListItemWrapper;
@@ -32,6 +33,7 @@ public class MainFragment extends Fragment implements AddDialog.OnAddListener, L
 
     private static final String LIST_CONTENT_KEY = "list_content_key";
     private static final int RECORD_TABLE_ID = 1;
+    private static final int LIST_TABLE_ID = 2;
 
 
     private CustomAdapter mAdapter;
@@ -49,6 +51,7 @@ public class MainFragment extends Fragment implements AddDialog.OnAddListener, L
 
         if (savedInstanceState == null) {
             mLoaderManager.initLoader(RECORD_TABLE_ID, null, this);
+            //mLoaderManager.initLoader(LIST_TABLE_ID, null, this);
             mObjectList = new ArrayList<ListItemWrapper>();
 
         } else {
@@ -115,8 +118,24 @@ public class MainFragment extends Fragment implements AddDialog.OnAddListener, L
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
 
-        return new CursorLoader(getActivity().getApplicationContext(), TestContentProvider.RECORDS_CONTENT_URI,
-                RecordsTable.PROJECTION_ALL, null, null, null);
+        Loader loader;
+
+        switch (id) {
+            case RECORD_TABLE_ID:
+                loader = new CursorLoader(getActivity().getApplicationContext(), TestContentProvider.RECORDS_CONTENT_URI,
+                        RecordsTable.PROJECTION_ALL, null, null, null);
+                break;
+            case LIST_TABLE_ID:
+                loader = new CursorLoader(getActivity().getApplicationContext(), TestContentProvider.LISTS_CONTENT_URI,
+                        ListsTable.PROJECTION_ALL, null, null, null);
+                break;
+            default:
+                loader = new CursorLoader(getActivity().getApplicationContext(), TestContentProvider.RECORDS_CONTENT_URI,
+                        RecordsTable.PROJECTION_ALL, null, null, null);
+                break;
+        }
+
+        return loader;
     }
 
     @Override
@@ -164,9 +183,9 @@ public class MainFragment extends Fragment implements AddDialog.OnAddListener, L
         //delete the clicked item
 
 
-        Log.v("slim", "mObjectList removed item position = "+position);
-        Log.v("slim", "mObjectList removed item id = "+mObjectList.get(position).getId());
-        Log.v("slim", "mObjectList removed item title = "+mObjectList.get(position).getTitle());
+        Log.v("slim", "mObjectList removed item position = " + position);
+        Log.v("slim", "mObjectList removed item id = " + mObjectList.get(position).getId());
+        Log.v("slim", "mObjectList removed item title = " + mObjectList.get(position).getTitle());
 
         getActivity().getContentResolver().delete(
                 ContentUris.withAppendedId(
@@ -178,9 +197,9 @@ public class MainFragment extends Fragment implements AddDialog.OnAddListener, L
 
 
         Log.v("slim", "delete performed");
-        for(ListItemWrapper listItemWrapper : mObjectList){
-            Log.v("slim", "mObjectList item id = "+listItemWrapper.getId());
-            Log.v("slim", "mObjectList item title = "+listItemWrapper.getTitle());
+        for (ListItemWrapper listItemWrapper : mObjectList) {
+            Log.v("slim", "mObjectList item id = " + listItemWrapper.getId());
+            Log.v("slim", "mObjectList item title = " + listItemWrapper.getTitle());
             Log.v("slim", "-----------------------");
         }
 
